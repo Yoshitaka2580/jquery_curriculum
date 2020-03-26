@@ -1,26 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="format-detection" content="telephone=no">
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="format-detection" content="telephone=no" />
     <title>jQuery</title>
-    <link rel="stylesheet" href="../../common/css/reset.css">
-    <link rel="stylesheet" href="../../common/css/base.css">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="../../common/css/reset.css" />
+    <link rel="stylesheet" href="../../common/css/base.css" />
+    <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
     <div class="wrapper">
       <div class="slider-wrap">
         <div class="slider-area">
           <ul class="slider-list clearfix">
-            <li><img src="./img/1.jpg"></li>
-            <li><img src="./img/2.jpg"></li>
-            <li><img src="./img/3.jpg"></li>
-            <li><img src="./img/4.jpg"></li>
+            <li><img src="./img/1.jpg" /></li>
+            <li><img src="./img/2.jpg" /></li>
+            <li><img src="./img/3.jpg" /></li>
+            <li><img src="./img/4.jpg" /></li>
           </ul>
-          <button type="button" class="slider-ctrl-btn is-prev" data-ctrl="prev"></button>
-          <button type="button" class="slider-ctrl-btn is-next" data-ctrl="next"></button>
+          <button
+            type="button"
+            class="slider-ctrl-btn is-prev"
+            data-ctrl="prev"
+          ></button>
+          <button
+            type="button"
+            class="slider-ctrl-btn is-next"
+            data-ctrl="next"
+          ></button>
         </div>
       </div>
     </div>
@@ -34,6 +45,45 @@
       // .data() 要素のdata属性を取得します。
       // .width() 要素の幅を取得します。
       // .length 要素の個数を取得します。
+
+      //位置情報、個数、幅を取得
+      var pages = [];
+      var numCount = $(".slider-list li").length; //要素の個数を取得
+      var num = 0; //幅の数値
+
+      for (var i = 0; i < numCount; i++) {
+        if (i == 0) {
+          pages.push(0);
+        } else {
+          num += -$(".slider-list li")
+            .eq(i)
+            .width(); //numに追加
+          pages.push(num); //pagesに要素を格納
+        }
+      }
+      //data属性を取得
+      $(this).data("ctrl");
+
+      //1クリックごとに要素の幅分スライド
+      var pagesNum = 0; //初期化
+
+      $(".slider-ctrl-btn").click(function() {
+        if ($(this).data("ctrl") === "next") {
+          var step = 1;
+          pagesNum = pagesNum + step;
+          if (pagesNum === pages.length) {
+            pagesNum = 0;
+          }
+          $(".slider-list").animate({ left: pages[pagesNum] });
+        } else if ($(this).data("ctrl") === "prev") {
+          var back = -1;
+          pagesNum = pagesNum + back;
+          if (pagesNum === -1) {
+            pagesNum = pages.length - 1;
+          }
+          $(".slider-list").animate({ left: pages[pagesNum] });
+        }
+      });
     </script>
   </body>
 </html>
