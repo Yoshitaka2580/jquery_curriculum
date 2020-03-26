@@ -1,13 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="format-detection" content="telephone=no">
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="format-detection" content="telephone=no" />
     <title>jQuery</title>
-    <link rel="stylesheet" href="../../common/css/reset.css">
-    <link rel="stylesheet" href="../../common/css/base.css">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="../../common/css/reset.css" />
+    <link rel="stylesheet" href="../../common/css/base.css" />
+    <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
     <div class="wrapper">
@@ -56,6 +59,20 @@
       // .next() 要素の隣の要素を取得します。これは使わなくてもできます。
       // .children() 要素の子要素を取得します。
       // .stop() 現在動作中のアニメーション処理を全て中止します。
+      $(".menu__list > li").hover(
+        function() {
+          $(this)
+            .children(".menu__list__childList")
+            .stop(true)
+            .slideDown();
+        },
+        function() {
+          $(this)
+            .children(".menu__list__childList")
+            .stop(true)
+            .slideUp();
+        }
+      );
     </script>
   </body>
 </html>
