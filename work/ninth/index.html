@@ -42,19 +42,16 @@
       // [テンプレート]
       // <li class="colorList__item">
       //   <p class="colorList__title" style="background-color: ;"></p>
-      // </li>
+      // </li>;
       //
       // このテンプレートに取得してきた中身を入れて表示します。
 
       // ------- エラー -------
 
-      $(function() {
+      $(function () {
         $.ajax({
-          url: "./data.json"
-        }).done(function(data) {
-          $(".colorList").append("k");
-          console.log(data);
-        });
+          url: "./data.json",
+        }).done(function (data) {});
       });
     </script>
   </body>

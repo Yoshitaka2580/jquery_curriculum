@@ -141,29 +141,6 @@
       // .offset().top 要素の位置を取得します。
       // .fadeIn() '''要素をフェードインさせる。'''
       // .fadeOut() 要素をフェードアウトさせる。
-
-      // ------ エラー ----
-      $(".menu__btn").on("click", function() {
-        var type = $(this).data("scroll-place-type'");
-        var position = $(".title")
-          .eq(type)
-          .offset().top;
-        $("html, body").animate({
-          scrollTop: position
-        });
-      });
-      // ---- エラー 質問----
-
-      $(window).scroll(function() {
-        var scroll = $(this).scrollTop();
-
-        //100pxほどスクロールしたとき右下にfadeInする
-        if (scroll >= 100) {
-          $(".scrollTopBtn").fadeIn();
-        } else {
-          $(".scrollTopBtn").fadeOut();
-        }
-      });
     </script>
   </body>
 </html>
