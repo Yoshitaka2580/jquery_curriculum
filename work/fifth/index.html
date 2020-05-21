@@ -106,11 +106,11 @@
           if (value === "all") {
             $('.list > li').show();
           } else {
-            $(".list > li").each(function(i, val) {
-              if (value === $(val).data("category-type")) {
-                $(val).show();
+            $(".list > li").each(function(i, list) {
+              if (value === $(list).data("category-type")) {
+                $(list).show();
               } else {
-                $(val).hide();
+                $(list).hide();
               }
             });
           }
