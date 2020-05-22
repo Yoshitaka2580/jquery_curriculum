@@ -103,11 +103,11 @@
       $(function() {
         $(".select").change(function() {
           var value = $(this).val();
-          if (value === "all") {
+          if (value === 'all') {
             $('.list > li').show();
           } else {
             $(".list > li").each(function(i, list) {
-              if (value === $(list).data("category-type")) {
+              if (value === $(list).data('category-type')) {
                 $(list).show();
               } else {
                 $(list).hide();
