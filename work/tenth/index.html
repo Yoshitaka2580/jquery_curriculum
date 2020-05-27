@@ -1,13 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="format-detection" content="telephone=no">
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="format-detection" content="telephone=no" />
     <title>jQuery</title>
-    <link rel="stylesheet" href="../../common/css/reset.css">
-    <link rel="stylesheet" href="../../common/css/base.css">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="../../common/css/reset.css" />
+    <link rel="stylesheet" href="../../common/css/base.css" />
+    <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
     <div class="wrap">
@@ -17,7 +20,12 @@
         </div>
         <div class="search">
           <div class="search__text">
-            <input type="text" id="js-search-word" class="search__text__input" placeholder="検索する">
+            <input
+              type="text"
+              id="js-search-word"
+              class="search__text__input"
+              placeholder="検索する"
+            />
           </div>
           <button id="js-search-button" class="search__btn">検索する</button>
         </div>
@@ -71,7 +79,7 @@
       // ├ 「前へ」と「次へ」のボタンがある
       // ├ 1ページ目では「前へ」に、最後のページでは「次へ」にdisabledクラスをつけて非活性（使用不能）にする
       // └ 1ページしかない場合はどちらもdisabledクラスをつけて非活性にする
-      // 
+      //
       // ページャのテンプレート
       // <div class="js-pager">
       //   <ul class="btn-wrapper">
@@ -82,8 +90,117 @@
       //
       //
 
+      $(function() {
+        var pageNum = 0; //初期値
+        var searchword; //検索した値
+        var lastPage; //最後のページ
+        
+        $('#js-search-button').on('click',function() {
+          pageNum = 1;
+          reset();
+          searchword = searchButton();
+          list();
+        });
 
+        //value要素を取得
+        function searchButton() {
+          var search = $('#js-search-word').val();
+          return search;
+        }
 
+        function pager() {
+          $('.lists').after(
+            '<div class="js-pager">'
+              + '<ul class="btn-wrapper">'
+                + '<li class="prev btn-item"><a class="btn-anchor" href="#">前へ</a></li>'
+                + '<li class="next btn-item"><a class="btn-anchor" href="#">次へ</a></li>'
+              + '</ul>'
+          + '</div>'
+          );
+
+          if (pageNum === 1) {
+            $('.prev').addClass('disabled');
+          } else if (pageNum === lastPage) {
+            $('.next').addClass('disabled');
+          }
+
+          $('.btn-wrapper').on('click' ,'.next',function() {
+            if (pageNum < lastPage) {
+              reset();
+              next();
+              list();
+            } else {
+              $('.message').remove();
+              $('.lists').before('<div class="message">これ以上はありません。</div>');            
+            }
+          });
+
+          $('.btn-wrapper').on('click','.prev', function() {          
+            if (pageNum > 1) {
+              reset();
+              prev();
+              list();
+            }
+          });
+        }
+
+        //二回目以降の処理
+        // 違うワードが検索された時にulと.messageの中身を空にする
+        function reset() {
+          $('.lists').empty();
+          $('.message').remove();
+          $('.js-pager').remove();
+        }
+
+        function next() {
+          pageNum +=  1;
+        }
+
+        function prev() {
+          pageNum -= 1;
+        }
+
+        function list() {
+          $.ajax({
+            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+            type: 'GET',
+            datatype: 'json',
+            data: {
+              // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+              applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
+              booksGenreId: '001',
+              hits: 20,
+              page: pageNum,
+              keyword: searchword,
+              pageCount: lastPage,
+            },
+          }).done(function(data) {
+            lastPage = data.pageCount;
+            var list = '';
+            if (data.count > 0) {
+              $.each(data.Items, function(i, item) {
+                list +=
+                  '<li class="lists__item">' +
+                    '<div class="lists__item__inner">' +
+                      '<a href=' + item.Item.itemUrl + ' class="lists__item__link" target="_blank">' +
+                        '<img src=' + item.Item.largeImageUrl + ' class="lists__item__img" alt="">' +
+                        '<p class="lists__item__detail">作品名：' + data.Items[i].Item.title + '</p>' +
+                        '<p class="lists__item__detail">作者　：' + data.Items[i].Item.author + '</p>' +
+                        '<p class="lists__item__detail">出版社：' + data.Items[i].Item.publisherName + '</p>' +
+                      '</a>' +
+                    '</div>' +
+                  '</li>';
+              });
+              $('.lists').prepend(list);
+              pager();
+            } else if (data.count === 0) {             
+              $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>');
+            }
+          }).fail(function() {    
+            $('.lists').before('<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>');
+          });
+        }
+      });
     </script>
   </body>
 </html>
