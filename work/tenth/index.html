@@ -108,6 +108,63 @@
           return search;
         }
 
+        //二回目以降の処理
+        // 違うワードが検索された時にulと.messageの中身を空にする
+        function reset() {
+          $('.lists').empty();
+          $('.message').remove();
+          $('.js-pager').remove();
+        }
+
+        function list() {
+          $.ajax({
+            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+            type: 'GET',
+            datatype: 'json',
+            timeout: 10000,
+            data: {
+              // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+              applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
+              booksGenreId: '001',
+              hits: 20,
+              page: pageNum,
+              keyword: searchword,
+              pageCount: lastPage,
+             
+            },
+          }).done(function(data) {
+              lastPage = data.pageCount;
+              var list = '';
+              if (data.count > 0) {
+                $.each(data.Items, function(i, item) {
+                  list +=
+                    '<li class="lists__item">' +
+                      '<div class="lists__item__inner">' +
+                        '<a href=' + item.Item.itemUrl + ' class="lists__item__link" target="_blank">' +
+                          '<img src=' + item.Item.largeImageUrl + ' class="lists__item__img" alt="">' +
+                          '<p class="lists__item__detail">作品名：' + data.Items[i].Item.title + '</p>' +
+                          '<p class="lists__item__detail">作者　：' + data.Items[i].Item.author + '</p>' +
+                          '<p class="lists__item__detail">出版社：' + data.Items[i].Item.publisherName + '</p>' +
+                        '</a>' +
+                      '</div>' +
+                    '</li>';
+                });
+                $('.lists').prepend(list);
+                pager();
+              } else if (data.count === 0) {   
+                $('.message').remove();
+                $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>');
+              }
+          }).fail(function(jqXHR) {
+            $('.message').remove();
+            if (jqXHR.status === 400) {
+               $('.lists').before('<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>');
+            } else if (jqXHR.status === 429) {
+              $('.lists').before('<div class="message">通信エラーです。</div>');
+            }
+          });
+        }
+
         function pager() {
           $('.lists').after(
             '<div class="js-pager">'
@@ -144,62 +201,13 @@
           });
         }
 
-        //二回目以降の処理
-        // 違うワードが検索された時にulと.messageの中身を空にする
-        function reset() {
-          $('.lists').empty();
-          $('.message').remove();
-          $('.js-pager').remove();
-        }
-
         function next() {
           pageNum +=  1;
         }
 
         function prev() {
           pageNum -= 1;
-        }
-
-        function list() {
-          $.ajax({
-            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
-            type: 'GET',
-            datatype: 'json',
-            data: {
-              // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-              applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
-              booksGenreId: '001',
-              hits: 20,
-              page: pageNum,
-              keyword: searchword,
-              pageCount: lastPage,
-            },
-          }).done(function(data) {
-            lastPage = data.pageCount;
-            var list = '';
-            if (data.count > 0) {
-              $.each(data.Items, function(i, item) {
-                list +=
-                  '<li class="lists__item">' +
-                    '<div class="lists__item__inner">' +
-                      '<a href=' + item.Item.itemUrl + ' class="lists__item__link" target="_blank">' +
-                        '<img src=' + item.Item.largeImageUrl + ' class="lists__item__img" alt="">' +
-                        '<p class="lists__item__detail">作品名：' + data.Items[i].Item.title + '</p>' +
-                        '<p class="lists__item__detail">作者　：' + data.Items[i].Item.author + '</p>' +
-                        '<p class="lists__item__detail">出版社：' + data.Items[i].Item.publisherName + '</p>' +
-                      '</a>' +
-                    '</div>' +
-                  '</li>';
-              });
-              $('.lists').prepend(list);
-              pager();
-            } else if (data.count === 0) {             
-              $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>');
-            }
-          }).fail(function() {    
-            $('.lists').before('<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>');
-          });
-        }
+        }        
       });
     </script>
   </body>
