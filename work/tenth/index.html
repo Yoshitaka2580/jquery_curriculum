@@ -98,7 +98,7 @@
         $('#js-search-button').on('click',function() {
           reset();
           searchword = searchButton();
-          list();
+          fetchAjax();
         });
 
         //value要素を取得
@@ -116,7 +116,7 @@
           $('.js-pager').remove();
         }
 
-        function list() {
+        function fetchAjax() {
           $.ajax({
             url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
             type: 'GET',
@@ -132,28 +132,7 @@
               pageCount: lastPage,
             },
           }).done(function(data) {
-              lastPage = data.pageCount;
-              var list = '';
-              if (data.count > 0) {
-                $.each(data.Items, function(i, item) {
-                  list +=
-                    '<li class="lists__item">' +
-                      '<div class="lists__item__inner">' +
-                        '<a href=' + item.Item.itemUrl + ' class="lists__item__link" target="_blank">' +
-                          '<img src=' + item.Item.largeImageUrl + ' class="lists__item__img" alt="">' +
-                          '<p class="lists__item__detail">作品名：' + data.Items[i].Item.title + '</p>' +
-                          '<p class="lists__item__detail">作者　：' + data.Items[i].Item.author + '</p>' +
-                          '<p class="lists__item__detail">出版社：' + data.Items[i].Item.publisherName + '</p>' +
-                        '</a>' +
-                      '</div>' +
-                    '</li>';
-                });
-                $('.lists').prepend(list);
-                pager();
-              } else {
-                $('.message').remove(); //二回以上表示防止
-                $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>');
-              }
+            listTemplate(data);
           }).fail(function(jqXHR) {
             $('.message').remove();
             switch (jqXHR.status) {
@@ -179,6 +158,31 @@
           });
         }
 
+        function listTemplate(data) {
+          lastPage = data.pageCount;
+          var list = '';
+          if (data.count > 0) {
+            $.each(data.Items, function(i, item) {
+              list +=
+                '<li class="lists__item">' +
+                  '<div class="lists__item__inner">' +
+                    '<a href=' + item.Item.itemUrl + ' class="lists__item__link" target="_blank">' +
+                      '<img src=' + item.Item.largeImageUrl + ' class="lists__item__img" alt="">' +
+                      '<p class="lists__item__detail">作品名：' + data.Items[i].Item.title + '</p>' +
+                      '<p class="lists__item__detail">作者　：' + data.Items[i].Item.author + '</p>' +
+                      '<p class="lists__item__detail">出版社：' + data.Items[i].Item.publisherName + '</p>' +
+                    '</a>' +
+                  '</div>' +
+                '</li>';
+            });
+            $('.lists').prepend(list);
+            pager();
+          } else {
+            $('.message').remove(); //二回以上表示防止
+            $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>');
+          }      
+        }   
+
         function pager() {
           $('.lists').after(
             '<div class="js-pager">'
@@ -200,7 +204,7 @@
             if (pageNum < lastPage) {
               reset();
               next();
-              list();
+              fetchAjax();
             } else {
               $('.message').remove();
               $('.lists').before('<div class="message">これ以上はありません。</div>');            
@@ -211,7 +215,7 @@
             if (pageNum > 1) {
               reset();
               prev();
-              list();
+              fetchAjax();
             }
           });
         }
