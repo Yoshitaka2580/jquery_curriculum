@@ -101,23 +101,23 @@
         });
 
         $(document).on('click' ,'.next',function() {
-            if (pageNum < lastPage) {
-              pageNum++;
-              reset();
-              getBook();
-            } else {
-              $('.message').remove();
-              errorMessage = '<div class="message">これ以上はありません。</div>';
-              $('.lists').before(errorMessage);            
-            }
-          });
+          if (pageNum < lastPage) {
+            pageNum++;
+            reset();
+            getBook();
+          } else {
+            $('.message').remove();
+            errorMessage = '<div class="message">これ以上はありません。</div>';
+            $('.lists').before(errorMessage);            
+          }
+        });
 
         $(document).on('click','.prev', function() {          
-            if (pageNum > 1) {
-              pageNum--;
-              reset();
-              getBook();
-            }
+          if (pageNum > 1) {
+            pageNum--;
+            reset();
+            getBook();
+          }
         });
       });
 
@@ -128,8 +128,8 @@
         return search;
       }
 
-        //二回目以降の処理
-        // 違うワードが検索された時にulの中身を空,messageとページャを削除。
+      /*二回目以降の処理
+        違うワードが検索された時にulの中身を空,messageとページャを削除。*/
       function reset() {
         $('.lists').empty();
         $('.message').remove();
@@ -153,8 +153,8 @@
           },
         }).done(function(data) {
           showBook(data);
-        }).fail(function(jqXHR,data) {
-          showErrorFail(jqXHR,data);
+        }).fail(function(jqXHR) {
+          showErrorMessage(jqXHR);
         });
       }
 
@@ -179,7 +179,7 @@
           $('.lists').prepend(list);
           showPager();
         } else {
-          showErrorCount(data);
+          showCountNull();
         }      
       }
 
@@ -193,7 +193,7 @@
           '</ul>' +
         '</div>'
         );
-        
+
         if (pageNum === 1) {
           $('.prev').addClass('disabled');
         }
@@ -203,43 +203,43 @@
       }
 
       //データ件数が0のとき
-      function showErrorCount(data) {
+      function showCountNull() {
         $('.message').remove(); //二回以上表示防止
         errorMessage = '<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>';
         $('.lists').before(errorMessage);
       }
 
       //通信が失敗したとき
-      function showErrorFail(error) {
+      function showErrorMessage(error) {
         $('.message').remove();
         switch (error.status) {
           case 400: {
-            errorMessage ='<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>';
+            errorMessage = '<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>';
             $('.lists').before(errorMessage);
             break;
           }
           case 404: { 
-            errorMessage ='<div class="message">パラメーター不足です。</div>';
+            errorMessage = '<div class="message">パラメーター不足です。</div>';
             $('.lists').before(errorMessage);
             break;
           } 
           case 429: {
-            errorMessage ='<div class="message">リクエスト数が上限を達しています。しばらく時間を空けてから、ご利用ください。</div>';
+            errorMessage = '<div class="message">リクエスト数が上限を達しています。しばらく時間を空けてから、ご利用ください。</div>';
             $('.lists').before(errorMessage);
             break;
           } 
           case 500: {
-            errorMessage ='<div class="message">楽天ウェブサービス内のエラーです。</div>';
+            errorMessage = '<div class="message">楽天ウェブサービス内のエラーです。</div>';
             $('.lists').before(errorMessage);
             break;
           } 
           case 503: {
-            errorMessage ='<div class="message">メンテナンス中です。</div>';
+            errorMessage = '<div class="message">メンテナンス中です。</div>';
             $('lists').before(errorMessage);
             break;
           } 
           default: {
-            errorMessage ='<div class="message">何らかのエラーです。</div>';
+            errorMessage = '<div class="message">何らかのエラーです。</div>';
             $('lists').before(errorMessage);
             break;
           }
