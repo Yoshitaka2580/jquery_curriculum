@@ -89,137 +89,162 @@
       // </div>
       //
       //
+      var pageNum; //初期値
+      var searchword; //検索した値
+      var lastPage; //最後のページ
 
       $(function() {
-        var pageNum; //初期値
-        var searchword; //検索した値
-        var lastPage; //最後のページ
-        
         $('#js-search-button').on('click',function() {
           reset();
           searchword = searchButton();
-          fetchAjax();
+          getBook();
         });
 
-        //value要素を取得
-        function searchButton() {
-          pageNum = 1;
-          var search = $('#js-search-word').val();
-          return search;
-        }
-
-        //二回目以降の処理
-        // 違うワードが検索された時にulの中身を空,messageとページャを削除。
-        function reset() {
-          $('.lists').empty();
-          $('.message').remove();
-          $('.js-pager').remove();
-        }
-
-        function fetchAjax() {
-          $.ajax({
-            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
-            type: 'GET',
-            datatype: 'json',
-            timeout: 10000,
-            data: {
-              // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-              applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
-              booksGenreId: '001',
-              hits: 20,
-              page: pageNum,
-              keyword: searchword,
-              pageCount: lastPage,
-            },
-          }).done(function(data) {
-            listTemplate(data);
-          }).fail(function(jqXHR) {
-            $('.message').remove();
-            switch (jqXHR.status) {
-              case 400:
-                $('.lists').before('<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>');
-                break;
-              case 404:
-                $('.lists').before('<div class="message">パラメーター不足です。</div>');
-                break;
-              case 429:
-                $('.lists').before('<div class="message">リクエスト数が上限を達しています。しばらく時間を空けてから、ご利用ください。</div>');
-                break;
-              case 500:
-                $('.lists').before('<div class="message">楽天ウェブサービス内のエラーです。</div>');
-                break;
-              case 503:
-                $('.lists').before('<div class="message">メンテナンス中です。</div>');
-                break;
-              default:
-                $('.lists').before('<div class="message">何らかのエラーです。</div>');
-                break;
-            }
-          });
-        }
-
-        function listTemplate(data) {
-          lastPage = data.pageCount;
-          var list = '';
-          if (data.count > 0) {
-            $.each(data.Items, function(i, item) {
-              list +=
-                '<li class="lists__item">' +
-                  '<div class="lists__item__inner">' +
-                    '<a href=' + item.Item.itemUrl + ' class="lists__item__link" target="_blank">' +
-                      '<img src=' + item.Item.largeImageUrl + ' class="lists__item__img" alt="">' +
-                      '<p class="lists__item__detail">作品名：' + data.Items[i].Item.title + '</p>' +
-                      '<p class="lists__item__detail">作者　：' + data.Items[i].Item.author + '</p>' +
-                      '<p class="lists__item__detail">出版社：' + data.Items[i].Item.publisherName + '</p>' +
-                    '</a>' +
-                  '</div>' +
-                '</li>';
-            });
-            $('.lists').prepend(list);
-            listPager();
-          } else {
-            $('.message').remove(); //二回以上表示防止
-            $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>');
-          }      
-        }   
-
-        function listPager() {
-          $('.lists').after(
-            '<div class="js-pager">' +
-              '<ul class="btn-wrapper">' +
-              '<li class="prev btn-item"><a class="btn-anchor" href="#">前へ</a></li>' +
-              '<li class="next btn-item"><a class="btn-anchor" href="#">次へ</a></li>' +
-            '</ul>' +
-          '</div>'
-          );
-
-          if (pageNum === 1) {
-            $('.prev').addClass('disabled');
-          }
-          if (pageNum === lastPage) {
-            $('.next').addClass('disabled');
-          }
-
-          $('.btn-wrapper').on('click' ,'.next',function() {
+        $(document).on('click' ,'.next',function() {
             if (pageNum < lastPage) {
               pageNum++;
               reset();
-              fetchAjax();
+              getBook();
             } else {
               $('.message').remove();
-              $('.lists').before('<div class="message">これ以上はありません。</div>');            
+              errorMessage = '<div class="message">これ以上はありません。</div>';
+              $('.lists').before(errorMessage);            
             }
           });
 
-          $('.btn-wrapper').on('click','.prev', function() {          
+        $(document).on('click','.prev', function() {          
             if (pageNum > 1) {
               pageNum--;
               reset();
-              fetchAjax();
+              getBook();
             }
-          });
-        }
+        });
       });
+
+      //value要素を取得
+      function searchButton() {
+        pageNum = 1;
+        var search = $('#js-search-word').val();
+        return search;
+      }
+
+        //二回目以降の処理
+        // 違うワードが検索された時にulの中身を空,messageとページャを削除。
+      function reset() {
+        $('.lists').empty();
+        $('.message').remove();
+        $('.js-pager').remove();
+      }
+
+      function getBook() {
+        $.ajax({
+          url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+          type: 'GET',
+          datatype: 'json',
+          timeout: 10000,
+          data: {
+            // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+            applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
+            booksGenreId: '001',
+            hits: 20,
+            page: pageNum,
+            keyword: searchword,
+            pageCount: lastPage,
+          },
+        }).done(function(data) {
+          showBook(data);
+        }).fail(function(jqXHR,data) {
+          showErrorFail(jqXHR,data);
+        });
+      }
+
+      //楽天Bookを作成
+      function showBook(data) {
+        lastPage = data.pageCount;
+        var list = '';
+        if (data.count > 0) {
+          $.each(data.Items, function(i, item) {
+            list +=
+              '<li class="lists__item">' +
+                '<div class="lists__item__inner">' +
+                  '<a href=' + item.Item.itemUrl + ' class="lists__item__link" target="_blank">' +
+                    '<img src=' + item.Item.largeImageUrl + ' class="lists__item__img" alt="">' +
+                    '<p class="lists__item__detail">作品名：' + data.Items[i].Item.title + '</p>' +
+                    '<p class="lists__item__detail">作者　：' + data.Items[i].Item.author + '</p>' +
+                    '<p class="lists__item__detail">出版社：' + data.Items[i].Item.publisherName + '</p>' +
+                  '</a>' +
+                '</div>' +
+              '</li>';
+          });
+          $('.lists').prepend(list);
+          showPager();
+        } else {
+          showErrorCount(data);
+        }      
+      }
+
+      //ページャを作成。
+      function showPager() {
+        $('.lists').after(
+          '<div class="js-pager">' +
+            '<ul class="btn-wrapper">' +
+            '<li class="prev btn-item"><a class="btn-anchor" href="#">前へ</a></li>' +
+            '<li class="next btn-item"><a class="btn-anchor" href="#">次へ</a></li>' +
+          '</ul>' +
+        '</div>'
+        );
+        
+        if (pageNum === 1) {
+          $('.prev').addClass('disabled');
+        }
+        if (pageNum === lastPage) {
+          $('.next').addClass('disabled');
+        }
+      }
+
+      //データ件数が0のとき
+      function showErrorCount(data) {
+        $('.message').remove(); //二回以上表示防止
+        errorMessage = '<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>';
+        $('.lists').before(errorMessage);
+      }
+
+      //通信が失敗したとき
+      function showErrorFail(error) {
+        $('.message').remove();
+        switch (error.status) {
+          case 400: {
+            errorMessage ='<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>';
+            $('.lists').before(errorMessage);
+            break;
+          }
+          case 404: { 
+            errorMessage ='<div class="message">パラメーター不足です。</div>';
+            $('.lists').before(errorMessage);
+            break;
+          } 
+          case 429: {
+            errorMessage ='<div class="message">リクエスト数が上限を達しています。しばらく時間を空けてから、ご利用ください。</div>';
+            $('.lists').before(errorMessage);
+            break;
+          } 
+          case 500: {
+            errorMessage ='<div class="message">楽天ウェブサービス内のエラーです。</div>';
+            $('.lists').before(errorMessage);
+            break;
+          } 
+          case 503: {
+            errorMessage ='<div class="message">メンテナンス中です。</div>';
+            $('lists').before(errorMessage);
+            break;
+          } 
+          default: {
+            errorMessage ='<div class="message">何らかのエラーです。</div>';
+            $('lists').before(errorMessage);
+            break;
+          }
+        }
+      }
     </script>
   </body>
 </html>
