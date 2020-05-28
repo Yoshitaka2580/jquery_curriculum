@@ -176,21 +176,21 @@
                 '</li>';
             });
             $('.lists').prepend(list);
-            pager();
+            listPager();
           } else {
             $('.message').remove(); //二回以上表示防止
             $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>');
           }      
         }   
 
-        function pager() {
+        function listPager() {
           $('.lists').after(
-            '<div class="js-pager">'
-              + '<ul class="btn-wrapper">'
-                + '<li class="prev btn-item"><a class="btn-anchor" href="#">前へ</a></li>'
-                + '<li class="next btn-item"><a class="btn-anchor" href="#">次へ</a></li>'
-              + '</ul>'
-          + '</div>'
+            '<div class="js-pager">' +
+              '<ul class="btn-wrapper">' +
+              '<li class="prev btn-item"><a class="btn-anchor" href="#">前へ</a></li>' +
+              '<li class="next btn-item"><a class="btn-anchor" href="#">次へ</a></li>' +
+            '</ul>' +
+          '</div>'
           );
 
           if (pageNum === 1) {
@@ -202,8 +202,8 @@
 
           $('.btn-wrapper').on('click' ,'.next',function() {
             if (pageNum < lastPage) {
+              pageNum++;
               reset();
-              next();
               fetchAjax();
             } else {
               $('.message').remove();
@@ -213,20 +213,12 @@
 
           $('.btn-wrapper').on('click','.prev', function() {          
             if (pageNum > 1) {
+              pageNum--;
               reset();
-              prev();
               fetchAjax();
             }
           });
         }
-
-        function next() {
-          pageNum +=  1;
-        }
-
-        function prev() {
-          pageNum -= 1;
-        }        
       });
     </script>
   </body>
