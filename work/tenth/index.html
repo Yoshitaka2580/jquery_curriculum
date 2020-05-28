@@ -96,7 +96,6 @@
         var lastPage; //最後のページ
         
         $('#js-search-button').on('click',function() {
-          pageNum = 1;
           reset();
           searchword = searchButton();
           list();
@@ -104,12 +103,13 @@
 
         //value要素を取得
         function searchButton() {
+          pageNum = 1;
           var search = $('#js-search-word').val();
           return search;
         }
 
         //二回目以降の処理
-        // 違うワードが検索された時にulと.messageの中身を空にする
+        // 違うワードが検索された時にulの中身を空,messageとページャを削除。
         function reset() {
           $('.lists').empty();
           $('.message').remove();
@@ -130,7 +130,6 @@
               page: pageNum,
               keyword: searchword,
               pageCount: lastPage,
-             
             },
           }).done(function(data) {
               lastPage = data.pageCount;
@@ -152,7 +151,7 @@
                 $('.lists').prepend(list);
                 pager();
               } else if (data.count === 0) {   
-                $('.message').remove();
+                $('.message').remove(); //二回以上表示防止
                 $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>');
               }
           }).fail(function(jqXHR) {
@@ -177,7 +176,8 @@
 
           if (pageNum === 1) {
             $('.prev').addClass('disabled');
-          } else if (pageNum === lastPage) {
+          }
+          if (pageNum === lastPage) {
             $('.next').addClass('disabled');
           }
 
