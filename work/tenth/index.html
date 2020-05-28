@@ -150,16 +150,31 @@
                 });
                 $('.lists').prepend(list);
                 pager();
-              } else if (data.count === 0) {   
+              } else {
                 $('.message').remove(); //二回以上表示防止
                 $('.lists').before('<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>');
               }
           }).fail(function(jqXHR) {
             $('.message').remove();
-            if (jqXHR.status === 400) {
-               $('.lists').before('<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>');
-            } else if (jqXHR.status === 429) {
-              $('.lists').before('<div class="message">通信エラーです。</div>');
+            switch (jqXHR.status) {
+              case 400:
+                $('.lists').before('<div class="message">検索文字が空、もしくは半角英数1文字になっています</div>');
+                break;
+              case 404:
+                $('.lists').before('<div class="message">パラメーター不足です。</div>');
+                break;
+              case 429:
+                $('.lists').before('<div class="message">リクエスト数が上限を達しています。しばらく時間を空けてから、ご利用ください。</div>');
+                break;
+              case 500:
+                $('.lists').before('<div class="message">楽天ウェブサービス内のエラーです。</div>');
+                break;
+              case 503:
+                $('.lists').before('<div class="message">メンテナンス中です。</div>');
+                break;
+              default:
+                $('.lists').before('<div class="message">何らかのエラーです。</div>');
+                break;
             }
           });
         }
