@@ -123,14 +123,14 @@
 
       /*二回目以降の処理
         違うワードが検索された時にulの中身を空,messageとページャを削除。*/
-      function reset() {
+      function resetContent() {
         $('.lists').empty();
         $('.message').remove();
         $('.js-pager').remove();
       }
 
       function getBook() {
-        reset();
+        resetContent();
         $.ajax({
           url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
           type: 'GET',
